@@ -7,14 +7,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-find_package(D3d11 REQUIRED)
-
 # Get lib sqlite
 add_subdirectory(3rd/sqlite)
 
 # Get lib imgui
 add_subdirectory(3rd/imgui)
-
 
 file(GLOB_RECURSE APP_SRC CONFIGURE_DEPENDS
     ${CMAKE_SOURCE_DIR}/src/app/*.h
@@ -30,8 +27,6 @@ set_target_properties(
     RUNTIME_OUTPUT_DIRECTORY
     ${CMAKE_BINARY_DIR}/bin
 )
-target_include_directories(app PUBLIC ${D3d11_INCLUDE_DIRS})
-target_link_directories(app PUBLIC ${D3d11_LIBRARY_DIRS})
 target_include_directories(app PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/3rd)
 target_link_libraries(app PUBLIC sqlite imgui d3d11)
 
@@ -49,7 +44,5 @@ set_target_properties(
     RUNTIME_OUTPUT_DIRECTORY
     ${CMAKE_BINARY_DIR}/bin
 )
-target_include_directories(imgui-demo PUBLIC ${D3d11_INCLUDE_DIRS})
-target_link_directories(imgui-demo PUBLIC ${D3d11_LIBRARY_DIRS})
 target_include_directories(imgui-demo PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/3rd)
 target_link_libraries(imgui-demo PUBLIC imgui d3d11)
