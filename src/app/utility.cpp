@@ -34,7 +34,7 @@ impute_missing_by_mean(const std::vector<std::vector<float>> &X) {
   return X_new;
 }
 
-std::string fmt_mat2d(const std::vector<std::vector<float>> &X) {
+std::string fmt_mat(const std::vector<std::vector<float>> &X) {
   std::string str;
   size_t n = X.size();
   size_t m = X[0].size();
@@ -135,7 +135,7 @@ gen_missing_feat_idxs(const std::vector<std::vector<float>> &X) {
 }
 
 void impute_missing_values(std::vector<Student> stus) {
-  std::vector<std::vector<float>> X_all = ::stus_to_mat2d(stus);
+  std::vector<std::vector<float>> X_all = ::stus_to_mat(stus);
   std::vector<std::vector<float>> X_all_meaned =
       ::impute_missing_by_mean(X_all);
   std::vector<RegressionTree> trees_all;
@@ -160,7 +160,7 @@ void impute_missing_values(std::vector<Student> stus) {
   ::printf("[INFO] trees_all has trained.\n");
 
   for (auto &stu : stus) {
-    std::vector<std::vector<float>> X = ::stu_to_mat2d(stu);
+    std::vector<std::vector<float>> X = ::stu_to_mat(stu);
     std::vector<std::vector<float>> X_output = X;
     std::vector<std::vector<float>> X_meaned = ::impute_missing_by_mean(X);
     std::vector<size_t> missing_sample_idxs = ::gen_missing_sample_idxs(X);
@@ -193,13 +193,15 @@ void impute_missing_values(std::vector<Student> stus) {
                            0.2 * trees_all[i].predict(X_erased[j]);
         }
       }
+
+      stu.from_mat(X_output);
     }
   }
 }
 
 void sort(std::vector<Student> stus) {}
 
-std::vector<std::vector<float>> stu_to_mat2d(const Student &stu) {
+std::vector<std::vector<float>> stu_to_mat(const Student &stu) {
   std::vector<std::vector<float>> X;
 
   for (auto &i : stu.m_scores) {
@@ -209,12 +211,11 @@ std::vector<std::vector<float>> stu_to_mat2d(const Student &stu) {
   return X;
 }
 
-std::vector<std::vector<float>>
-stus_to_mat2d(const std::vector<Student> &stus) {
+std::vector<std::vector<float>> stus_to_mat(const std::vector<Student> &stus) {
   std::vector<std::vector<float>> mat;
 
   for (auto &stu : stus) {
-    auto X = stu_to_mat2d(stu);
+    auto X = stu_to_mat(stu);
     for (auto &x : X) {
       mat.push_back(x);
     }

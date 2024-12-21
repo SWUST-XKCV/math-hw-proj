@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdio>
 #include <map>
 #include <string>
 #include <vector>
@@ -33,4 +34,26 @@ struct Student {
 
     return str;
   }
+
+  Student &from_mat(const std::vector<std::vector<float>> &mat) {
+    size_t n = 0;
+    m_scores.clear();
+
+    for (auto &row : mat) {
+      m_scores.insert(
+          std::make_pair(std::string("t") + std::to_string(++n), row));
+    }
+
+    return *this;
+  }
+
+  std::vector<std::vector<float>> as_mat() {
+    std::vector<std::vector<float>> X;
+
+    for (auto &i : m_scores) {
+      X.push_back(i.second);
+    }
+
+    return X;
+  };
 };

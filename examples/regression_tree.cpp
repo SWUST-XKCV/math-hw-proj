@@ -34,7 +34,7 @@ int main() {
   auto output_data = data0;
   auto new_data = ::impute_missing_by_mean(data0);
 
-  ::printf("%s\n", ::fmt_mat2d(new_data).c_str());
+  ::printf("%s\n", ::fmt_mat(new_data).c_str());
 
   std::vector<size_t> missing_feat_idxs = {1, 2, 3, 4, 6};
   std::vector<size_t> missing_sample_idxs = {2, 3, 4, 5};
@@ -70,7 +70,7 @@ int main() {
     ::printf("]\n");
   }
 
-  ::printf("%s\n", ::fmt_mat2d(output_data).c_str());
+  ::printf("%s\n", ::fmt_mat(output_data).c_str());
 
   return 0;
 }
