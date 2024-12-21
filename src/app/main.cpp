@@ -7,11 +7,11 @@
 #include <string>
 #include <vector>
 
-void imputs_missing_value(std::vector<Student> stus) {}
+void impute_missing_value(std::vector<Student> stus) {}
 
 void sort(std::vector<Student> stus) {}
 
-std::vector<Student> read_csv(const std::string &path) {
+std::vector<Student> load_data_from_csv(const std::string &path) {
   std::vector<Student> stus;
   std::ifstream file(path);
   std::string line;
@@ -61,12 +61,12 @@ std::vector<Student> read_csv(const std::string &path) {
 
 int main(int argc, char *argv[]) {
   std::vector<Student> stus;
-  stus = read_csv("build/output.csv");
+  stus = load_data_from_csv("build/output.csv");
   size_t n_stus = stus.size();
 
   ::printf("stus.size = %lld\n", n_stus);
 
-  ::imputs_missing_value(stus);
+  ::impute_missing_value(stus);
 
   ::sort(stus);
 

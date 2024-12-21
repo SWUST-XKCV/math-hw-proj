@@ -46,3 +46,5 @@ set_target_properties(
 )
 target_include_directories(imgui-demo PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/3rd)
 target_link_libraries(imgui-demo PUBLIC imgui d3d11)
+
+add_subdirectory(examples)
