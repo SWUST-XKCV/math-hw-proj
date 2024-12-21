@@ -43,7 +43,7 @@ int main() {
     auto X = new_data;
     auto p = std::vector<float>();
     auto y = std::vector<float>();
-    auto tree = RegressionTree();
+    auto tree = RegressionTree(2, 2);
     auto missing_samples = std::vector<std::vector<float>>();
 
     for (auto j = 0; j < n_sample; j++) {
