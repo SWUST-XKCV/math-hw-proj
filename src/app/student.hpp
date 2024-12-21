@@ -17,7 +17,25 @@ struct Student {
     m_scores = scores;
   }
 
-  std::string fmt() {
+  float calc_weighted_score() const {
+    float ans = 0.0;
+    std::vector<float> w_tm = {0.1, 0.15, 0.2, 0.15, 0.2, 0.2};
+    std::vector<float> w_subject = {0.14, 0.13, 0.13, 0.1, 0.1,
+                                    0.1,  0.1,  0.1,  0.1};
+    auto mat = as_mat();
+
+    for (int i = 0; i < 6; i++) {
+      float sum = 0.0;
+      for (int j = 0; j < 9; j++) {
+        sum += w_subject[j] * mat[i][j];
+      }
+      ans = w_tm[i] * sum;
+    }
+
+    return ans;
+  }
+
+  std::string fmt() const {
     std::string str = m_name + ": [\n";
 
     for (auto &i : m_scores) {
@@ -47,7 +65,7 @@ struct Student {
     return *this;
   }
 
-  std::vector<std::vector<float>> as_mat() {
+  std::vector<std::vector<float>> as_mat() const {
     std::vector<std::vector<float>> X;
 
     for (auto &i : m_scores) {

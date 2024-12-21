@@ -1,4 +1,6 @@
-#include "app/regression_tree.hpp"
+#include <algorithm>
+#include <app/regression_tree.hpp>
+#include <app/student.hpp>
 #include <app/utility.hpp>
 #include <cstdlib>
 #include <fstream>
@@ -134,7 +136,7 @@ gen_missing_feat_idxs(const std::vector<std::vector<float>> &X) {
   return idxs;
 }
 
-void impute_missing_values(std::vector<Student> stus) {
+void impute_missing_values(std::vector<Student> &stus) {
   std::vector<std::vector<float>> X_all = ::stus_to_mat(stus);
   std::vector<std::vector<float>> X_all_meaned =
       ::impute_missing_by_mean(X_all);
@@ -199,7 +201,13 @@ void impute_missing_values(std::vector<Student> stus) {
   }
 }
 
-void sort(std::vector<Student> stus) {}
+void sort(std::vector<Student> &stus) {
+  auto cmp = [](const Student &stu1, const Student &stu2) {
+    return stu1.calc_weighted_score() > stu2.calc_weighted_score();
+  };
+
+  std::sort(stus.begin(), stus.end(), cmp);
+}
 
 std::vector<std::vector<float>> stu_to_mat(const Student &stu) {
   std::vector<std::vector<float>> X;
