@@ -1,3 +1,4 @@
+#include "app/logger.hpp"
 #include <algorithm>
 #include <app/regression_tree.hpp>
 #include <app/student.hpp>
@@ -144,7 +145,7 @@ void impute_missing_values(std::vector<Student> &stus) {
   size_t n_all_samples = X_all.size();
   size_t n_feat = X_all[0].size();
 
-  ::printf("[INFO] trees_all is training...\n");
+  Logger::info("trees_all is training...");
 
   for (auto i = 0; i < n_feat; i++) {
     auto X = X_all;
@@ -156,10 +157,10 @@ void impute_missing_values(std::vector<Student> &stus) {
     auto tree = RegressionTree(3, 2);
     tree.train(X, y);
     trees_all.push_back(tree);
-    ::printf("[INFO] trees_all[%d] has trained.\n", i);
+    Logger::info("trees_all[%d] has trained.", i);
   }
 
-  ::printf("[INFO] trees_all has trained.\n");
+  Logger::info("trees_all has trained.");
 
   for (auto &stu : stus) {
     std::vector<std::vector<float>> X = ::stu_to_mat(stu);
@@ -170,11 +171,11 @@ void impute_missing_values(std::vector<Student> &stus) {
     size_t n_sample = X.size();
     auto tree = RegressionTree(2, 2);
 
-    ::printf("[DEBUG] stu.name = %s\n", stu.m_name.c_str());
-    ::printf("[DEBUG] missing_feat_idxs.size = %lld\n",
-             missing_feat_idxs.size());
-    ::printf("[DEBUG] missing_sample_idxs.size = %lld\n",
-             missing_sample_idxs.size());
+    Logger::debug("[DEBUG] stu.name = %s", stu.m_name.c_str());
+    Logger::debug("[DEBUG] missing_feat_idxs.size = %lld",
+                  missing_feat_idxs.size());
+    Logger::debug("[DEBUG] missing_sample_idxs.size = %lld",
+                  missing_sample_idxs.size());
 
     for (auto i : missing_feat_idxs) {
       auto X_erased = X_meaned;

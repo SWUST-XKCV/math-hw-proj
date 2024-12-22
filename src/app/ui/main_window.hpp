@@ -1,9 +1,10 @@
 #pragma once
 
-#include "app/student.hpp"
-#include "app/utility.hpp"
-#include "imgui_internal.h"
+#include "app/logger.hpp"
+#include <app/student.hpp>
+#include <app/utility.hpp>
 #include <cstdlib>
+#include <fstream>
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl2.h>
 #include <imgui/imgui.h>
@@ -15,16 +16,21 @@
 struct MainWindow {
   using MainWindowState =
       std::map<std::string, std::variant<bool, int, float, std::string, void *,
-                                         std::vector<bool>>>;
+                                         std::vector<std::string>>>;
 
   static MainWindowState state;
 
   static void init_state() {
     state["stus"] = nullptr;
     state["is_opening"] = true;
+    state["log_file"] = nullptr;
+    state["logs"] = std::vector<std::string>();
   }
 
-  static void init() { init_state(); }
+  static void init(const std::string &log_file_path) {
+    init_state();
+    state["log_file"] = new std::ifstream(log_file_path);
+  }
 
   static void close() {
     std::vector<Student> *p_stus =
@@ -36,7 +42,7 @@ struct MainWindow {
   }
 
   static void render_ui() {
-    bool *p_opt_show = nullptr;
+    bool *p_open = nullptr;
     static bool opt_fullscreen = true;
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar;
     const ImGuiViewport *viewport = ImGui::GetMainViewport();
@@ -46,7 +52,7 @@ struct MainWindow {
                     ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
     window_flags |=
         ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-    ImGui::Begin("Main Window", p_opt_show, window_flags);
+    ImGui::Begin("Main Window", p_open, window_flags);
     ImGuiIO &io = ImGui::GetIO();
     if (ImGui::BeginMenuBar()) {
       if (ImGui::BeginMenu("Options")) {
@@ -61,8 +67,8 @@ struct MainWindow {
           p_stus = new std::vector(::load_data_from_csv("build/output.csv"));
           state["stus"] = p_stus;
 
-          ::printf("[INFO] Main Window Initialized.\n");
-          ::printf("[INFO] stus.size = %lld\n", p_stus->size());
+          Logger::info("[INFO] Main Window Initialized.");
+          Logger::info("[INFO] stus.size = %lld", p_stus->size());
         }
         if (ImGui::MenuItem("Clean")) {
           auto p_stus = (std::vector<Student> *)std::get<void *>(state["stus"]);
@@ -74,7 +80,7 @@ struct MainWindow {
         }
 
         if (ImGui::MenuItem("Close")) {
-          *p_opt_show = false;
+          *p_open = false;
         }
 
         ImGui::EndMenu();
@@ -94,9 +100,34 @@ struct MainWindow {
       ImGui::EndMenuBar();
     }
 
+    /*render_logger();*/
+
     render_table();
 
     ImGui::End();
+  }
+
+  static void render_logger() {
+    auto &log_file = *(std::ifstream *)std::get<void *>(state["log_file"]);
+    auto &logs = std::get<std::vector<std::string>>(state["logs"]);
+    std::string line;
+    std::string text;
+    std::getline(log_file, line);
+
+    if (logs.size() == 10) {
+      logs.erase(logs.begin());
+    }
+    logs.push_back(line);
+
+    for (int i = 0; i < logs.size(); i++) {
+      if (i == 0) {
+        text += i;
+      } else {
+        text += i + '\n';
+      }
+    }
+
+    ImGui::Text("%s", text.c_str());
   }
 
   static void render_table() {

@@ -1,3 +1,4 @@
+#include "app/logger.hpp"
 #include "app/student.hpp"
 #include "app/ui/main_window.hpp"
 #include <GLFW/glfw3.h>
@@ -41,7 +42,7 @@ int ui_init() {
   ::ImGui_ImplGlfw_InitForOpenGL(window, true);
   ::ImGui_ImplOpenGL2_Init();
 
-  MainWindow::init();
+  MainWindow::init(Logger::get_log_file_path());
 
   return 0;
 }

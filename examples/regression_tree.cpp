@@ -1,3 +1,4 @@
+#include <app/logger.hpp>
 #include <app/regression_tree.hpp>
 #include <app/utility.hpp>
 
@@ -17,6 +18,7 @@ std::vector<float> predict(const RegressionTree &tree,
 }
 
 int main() {
+  Logger::init("log.txt");
   ::printf("Regression Tree Example.\n");
 
   std::vector<std::vector<float>> data0 = {
