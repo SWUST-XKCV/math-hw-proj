@@ -32,6 +32,31 @@ static void glfw_error_callback(int error, const char* description)
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
 
+static void ApplyCustomStyle() {
+    ImGuiStyle& style = ImGui::GetStyle();
+    ImVec4* colors = style.Colors;
+
+    // 设置背景颜色（应用到不同区域）
+    colors[ImGuiCol_WindowBg] = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);  // 窗口背景
+    colors[ImGuiCol_ChildBg] = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);   // 子窗口背景
+    colors[ImGuiCol_Border] = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);     // 边框颜色
+    colors[ImGuiCol_BorderShadow] = ImVec4(0.0f, 0.0f, 0.0f, 0.00f);  // 边框阴影
+
+    // 设置文本颜色
+    colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);       // 文字颜色
+    colors[ImGuiCol_TextDisabled] = ImVec4(0.5f, 0.5f, 0.5f, 1.00f);  // 禁用状态文字颜色
+
+    // 设置按钮颜色
+    colors[ImGuiCol_Button] = ImVec4(0.45f, 0.45f, 0.45f, 1.00f);     // 普通按钮
+    colors[ImGuiCol_ButtonHovered] = ImVec4(0.55f, 0.55f, 0.55f, 1.00f); // 鼠标悬停按钮
+    colors[ImGuiCol_ButtonActive] = ImVec4(0.65f, 0.65f, 0.65f, 1.00f); // 按钮点击时
+
+    // 设置选项卡的背景
+    colors[ImGuiCol_Tab] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
+    colors[ImGuiCol_TabHovered] = ImVec4(0.26f, 0.26f, 0.26f, 1.00f);
+    colors[ImGuiCol_TabActive] = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);
+}
+
 // Main code
 int main(int, char**)
 {

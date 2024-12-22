@@ -33,7 +33,7 @@ set_target_properties(
     ${CMAKE_BINARY_DIR}/bin
 )
 target_include_directories(app PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/3rd)
-target_link_libraries(app PUBLIC sqlite imgui d3d11)
+target_link_libraries(app PUBLIC sqlite imgui OpenGL::GL)
 
 file(GLOB_RECURSE IMGUI_DEMO_SRC CONFIGURE_DEPENDS
     ${CMAKE_SOURCE_DIR}/src/imgui-demo/*.h
