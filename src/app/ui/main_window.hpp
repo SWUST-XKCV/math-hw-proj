@@ -2,6 +2,7 @@
 
 #include "app/student.hpp"
 #include "app/utility.hpp"
+#include "imgui_internal.h"
 #include <cstdlib>
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl2.h>
@@ -112,9 +113,18 @@ struct MainWindow {
       ::impute_missing_values(stus);
     }
 
-    if (ImGui::BeginTable("Student", 10,
+    ImGui::SameLine();
+
+    if (ImGui::Button("Sort")) {
+      ::sort(stus);
+    }
+
+    if (ImGui::BeginTable("Student", 13,
                           ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders)) {
-      ImGui::TableSetupColumn("stu and tm");
+      ImGui::TableSetupColumn("index", ImGuiTableColumnFlags_WidthFixed, 20.0f);
+      ImGui::TableSetupColumn("weigted score");
+      ImGui::TableSetupColumn("stu", ImGuiTableColumnFlags_WidthFixed, 30.0f);
+      ImGui::TableSetupColumn("tm", ImGuiTableColumnFlags_WidthFixed, 30.0f);
 
       for (int i = 0; i < 9; i++) {
         ImGui::TableSetupColumn(
@@ -124,13 +134,23 @@ struct MainWindow {
       ImGui::TableHeadersRow();
 
       for (int i = 0; i < n_stus; i++) {
+        bool have_indexed = false;
         for (auto &tm : stus[i].m_scores) {
           size_t n_tm_scores = tm.second.size();
           ImGui::TableNextRow();
-          ImGui::TableSetColumnIndex(0);
-          ImGui::Text("%s", (stus[i].m_name + '\t' + tm.first).c_str());
+          if (!have_indexed) {
+            ImGui::TableSetColumnIndex(0);
+            ImGui::Text("%d", i + 1);
+            ImGui::TableSetColumnIndex(1);
+            ImGui::Text("%f", stus[i].calc_weighted_score());
+            ImGui::TableSetColumnIndex(2);
+            ImGui::Text("%s", stus[i].m_name.c_str());
+            have_indexed = true;
+          }
+          ImGui::TableSetColumnIndex(3);
+          ImGui::Text("%s", tm.first.c_str());
           for (int j = 0; j < n_tm_scores; j++) {
-            ImGui::TableSetColumnIndex(j + 1);
+            ImGui::TableSetColumnIndex(j + 4);
             auto score = tm.second[j];
             if (std::abs(score - (-1.0)) < 0.00001) {
               ImGui::Text("*");
