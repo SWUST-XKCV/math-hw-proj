@@ -1,7 +1,8 @@
 #pragma once
 
-#include "app/logger.hpp"
+#include <app/logger.hpp>
 #include <app/student.hpp>
+#include <app/to_csv.hpp>
 #include <app/utility.hpp>
 #include <cstdlib>
 #include <filesystem>
@@ -89,7 +90,7 @@ struct MainWindow {
     if (select_win_open) {
       ImGui::Begin("Select File Path", &select_win_open);
 
-      static char buffer[1024] = "";
+      static char buffer[1024] = "build/output_preprocessed.csv";
 
       ImGui::InputText("##Enter file path", buffer, sizeof(buffer));
 
@@ -163,6 +164,18 @@ struct MainWindow {
 
     if (ImGui::Button("Clean Log")) {
       Logger::clean_logs();
+    }
+
+    ImGui::SameLine();
+
+    if (ImGui::Button("Save")) {
+      std::vector<std::string> header = {"x1", "x2", "x3", "x4", "x5",
+                                         "x6", "x7", "x8", "x9"};
+      auto mat = ::stus_to_mat(stus);
+      ::to_csv("out.csv", mat, header);
+
+      Logger::info("CSV file save at ./out.csv");
+      state["log_subwin_scrolled_to_buttom"] = true;
     }
 
     if (ImGui::BeginTable("Student", 13,
