@@ -4,7 +4,6 @@
 #include <app/student.hpp>
 #include <app/utility.hpp>
 #include <cstdlib>
-#include <fstream>
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl2.h>
 #include <imgui/imgui.h>
@@ -23,14 +22,10 @@ struct MainWindow {
   static void init_state() {
     state["stus"] = nullptr;
     state["is_opening"] = true;
-    state["log_file"] = nullptr;
-    state["logs"] = std::vector<std::string>();
+    state["log_subwin_scrolled_to_buttom"] = false;
   }
 
-  static void init(const std::string &log_file_path) {
-    init_state();
-    state["log_file"] = new std::ifstream(log_file_path);
-  }
+  static void init() { init_state(); }
 
   static void close() {
     std::vector<Student> *p_stus =
@@ -67,8 +62,8 @@ struct MainWindow {
           p_stus = new std::vector(::load_data_from_csv("build/output.csv"));
           state["stus"] = p_stus;
 
-          Logger::info("[INFO] Main Window Initialized.");
-          Logger::info("[INFO] stus.size = %lld", p_stus->size());
+          Logger::info("Main Window Initialized.");
+          Logger::info("stus.size = %lld", p_stus->size());
         }
         if (ImGui::MenuItem("Clean")) {
           auto p_stus = (std::vector<Student> *)std::get<void *>(state["stus"]);
@@ -100,7 +95,7 @@ struct MainWindow {
       ImGui::EndMenuBar();
     }
 
-    /*render_logger();*/
+    render_logger();
 
     render_table();
 
@@ -108,26 +103,13 @@ struct MainWindow {
   }
 
   static void render_logger() {
-    auto &log_file = *(std::ifstream *)std::get<void *>(state["log_file"]);
-    auto &logs = std::get<std::vector<std::string>>(state["logs"]);
-    std::string line;
-    std::string text;
-    std::getline(log_file, line);
-
-    if (logs.size() == 10) {
-      logs.erase(logs.begin());
+    ImGui::BeginChild("LOG:", ImVec2(-1, 150));
+    ImGui::Text("%s", Logger::get_logs_text().c_str());
+    if (std::get<bool>(state["log_subwin_scrolled_to_buttom"])) {
+      ImGui::SetScrollHereY(1.0);
+      state["log_subwin_scrolled_to_buttom"] = false;
     }
-    logs.push_back(line);
-
-    for (int i = 0; i < logs.size(); i++) {
-      if (i == 0) {
-        text += i;
-      } else {
-        text += i + '\n';
-      }
-    }
-
-    ImGui::Text("%s", text.c_str());
+    ImGui::EndChild();
   }
 
   static void render_table() {
@@ -142,12 +124,22 @@ struct MainWindow {
 
     if (ImGui::Button("Imputes")) {
       ::impute_missing_values(stus);
+      Logger::info("Imputed!!!");
+      state["log_subwin_scrolled_to_buttom"] = true;
     }
 
     ImGui::SameLine();
 
     if (ImGui::Button("Sort")) {
       ::sort(stus);
+      Logger::info("Sorted!!!");
+      state["log_subwin_scrolled_to_buttom"] = true;
+    }
+
+    ImGui::SameLine();
+
+    if (ImGui::Button("Clean Log")) {
+      Logger::clean_logs();
     }
 
     if (ImGui::BeginTable("Student", 13,

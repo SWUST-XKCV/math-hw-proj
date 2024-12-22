@@ -171,10 +171,10 @@ void impute_missing_values(std::vector<Student> &stus) {
     size_t n_sample = X.size();
     auto tree = RegressionTree(2, 2);
 
-    Logger::debug("[DEBUG] stu.name = %s", stu.m_name.c_str());
-    Logger::debug("[DEBUG] missing_feat_idxs.size = %lld",
+    Logger::debug("stu.name = %s", stu.m_name.c_str());
+    Logger::debug("missing_feat_idxs.size = %lld",
                   missing_feat_idxs.size());
-    Logger::debug("[DEBUG] missing_sample_idxs.size = %lld",
+    Logger::debug("missing_sample_idxs.size = %lld",
                   missing_sample_idxs.size());
 
     for (auto i : missing_feat_idxs) {

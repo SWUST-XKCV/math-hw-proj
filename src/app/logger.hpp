@@ -9,6 +9,7 @@
 #include <sstream>
 #include <stdio.h>
 #include <string>
+#include <vector>
 
 class Logger {
 public:
@@ -21,6 +22,7 @@ public:
 
 private:
   std::string m_log_file_path;
+  std::vector<std::string> m_logs;
 
   static Logger *logger;
   static std::mutex mtx;
@@ -40,6 +42,33 @@ public:
         logger = new Logger(log_file_path);
       }
     }
+  }
+
+  static std::string get_logs_text() {
+    std::lock_guard<std::mutex> lock(logger->log_mutex);
+    if (logger != nullptr) {
+      std::string text;
+      size_t n_lines = logger->m_logs.size();
+
+      for (int i = 0; i < n_lines; i++) {
+        if (i == 0) {
+          text += logger->m_logs[i];
+        } else {
+          text += '\n' + logger->m_logs[i];
+        }
+      }
+      return text;
+    }
+
+    return "";
+  }
+
+  static std::vector<std::string> *get_logs_pointer() {
+    if (logger != nullptr) {
+      ::printf("%p\n", &(logger->m_logs));
+      return &(logger->m_logs);
+    }
+    return nullptr;
   }
 
   static void close() {
@@ -71,11 +100,14 @@ public:
     std::lock_guard<std::mutex> lock(log_mutex);
     // 输出到控制台
     std::cout << log_entry.str() << std::endl;
+    m_logs.push_back(log_entry.str());
 
     // 输出到文件
     if (log_file && log_file->is_open()) {
       *log_file << log_entry.str() << std::endl;
     }
+
+    log_file->flush();
   }
 
   static std::string get_log_file_path() {
@@ -84,6 +116,12 @@ public:
     }
 
     return "";
+  }
+
+  static void clean_logs() {
+    if (logger != nullptr) {
+        logger->m_logs.clear();
+    }
   }
 
   static void debug(const char *fmt, ...) {
