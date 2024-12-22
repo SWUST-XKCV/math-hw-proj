@@ -7,8 +7,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
+find_package(OpenGL REQUIRED)
+
 # Get lib sqlite
 add_subdirectory(3rd/sqlite)
+
+# Get lib glfw
+add_subdirectory(3rd/glfw)
 
 # Get lib imgui
 add_subdirectory(3rd/imgui)
@@ -45,6 +50,6 @@ set_target_properties(
     ${CMAKE_BINARY_DIR}/bin
 )
 target_include_directories(imgui-demo PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/3rd)
-target_link_libraries(imgui-demo PUBLIC imgui d3d11)
+target_link_libraries(imgui-demo PUBLIC imgui OpenGL::GL)
 
 add_subdirectory(examples)
