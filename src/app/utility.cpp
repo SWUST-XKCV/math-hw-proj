@@ -154,7 +154,7 @@ void impute_missing_values(std::vector<Student> &stus) {
       y.push_back(x[i]);
       x.erase(x.begin() + i);
     }
-    auto tree = RegressionTree(3, 2);
+    auto tree = RegressionTree(4, 3);
     tree.train(X, y);
     trees_all.push_back(tree);
     Logger::info("trees_all[%d] has trained.", i);

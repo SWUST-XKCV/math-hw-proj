@@ -4,6 +4,7 @@
 #include <app/student.hpp>
 #include <app/utility.hpp>
 #include <cstdlib>
+#include <filesystem>
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl2.h>
 #include <imgui/imgui.h>
@@ -38,6 +39,7 @@ struct MainWindow {
 
   static void render_ui() {
     bool *p_open = nullptr;
+    static bool select_win_open = false;
     static bool opt_fullscreen = true;
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar;
     const ImGuiViewport *viewport = ImGui::GetMainViewport();
@@ -52,18 +54,7 @@ struct MainWindow {
     if (ImGui::BeginMenuBar()) {
       if (ImGui::BeginMenu("Options")) {
         if (ImGui::MenuItem("Load")) {
-          auto p_stus = (std::vector<Student> *)std::get<void *>(state["stus"]);
-          if (p_stus != nullptr) {
-            delete p_stus;
-            p_stus = nullptr;
-            state["stus"] = p_stus;
-          }
-
-          p_stus = new std::vector(::load_data_from_csv("build/output.csv"));
-          state["stus"] = p_stus;
-
-          Logger::info("Main Window Initialized.");
-          Logger::info("stus.size = %lld", p_stus->size());
+          select_win_open = true;
         }
         if (ImGui::MenuItem("Clean")) {
           auto p_stus = (std::vector<Student> *)std::get<void *>(state["stus"]);
@@ -93,6 +84,38 @@ struct MainWindow {
         ImGui::EndMenu();
       }
       ImGui::EndMenuBar();
+    }
+
+    if (select_win_open) {
+      ImGui::Begin("Select File Path", &select_win_open);
+
+      static char buffer[1024] = "";
+
+      ImGui::InputText("##Enter file path", buffer, sizeof(buffer));
+
+      ImGui::SameLine();
+
+      if (ImGui::Button("Submit")) {
+        if (std::filesystem::exists(buffer)) {
+          auto p_stus = (std::vector<Student> *)std::get<void *>(state["stus"]);
+
+          if (p_stus != nullptr) {
+            delete p_stus;
+            p_stus = nullptr;
+            state["stus"] = p_stus;
+          }
+
+          p_stus = new std::vector(::load_data_from_csv(buffer));
+          state["stus"] = p_stus;
+          select_win_open = false;
+
+          Logger::info("Selected file: %s", buffer);
+        } else {
+          Logger::info("The file is not exists.");
+          ::memset(buffer, 0, sizeof(buffer));
+        }
+      }
+      ImGui::End();
     }
 
     render_logger();
