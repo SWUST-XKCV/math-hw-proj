@@ -14,6 +14,8 @@
 #include <sys/stat.h>
 #include <variant>
 
+extern bool g_should_close_program;
+
 struct MainWindow {
   using MainWindowState =
       std::map<std::string, std::variant<bool, int, float, std::string, void *,
@@ -39,10 +41,12 @@ struct MainWindow {
   }
 
   static void render_ui() {
-    bool *p_open = nullptr;
+    static bool main_win_open = true;
     static bool select_win_open = false;
     static bool opt_fullscreen = true;
+
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar;
+
     const ImGuiViewport *viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->WorkPos);
     ImGui::SetNextWindowSize(viewport->WorkSize);
@@ -50,80 +54,86 @@ struct MainWindow {
                     ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
     window_flags |=
         ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-    ImGui::Begin("Main Window", p_open, window_flags);
-    ImGuiIO &io = ImGui::GetIO();
-    if (ImGui::BeginMenuBar()) {
-      if (ImGui::BeginMenu("Options")) {
-        if (ImGui::MenuItem("Load")) {
-          select_win_open = true;
-        }
-        if (ImGui::MenuItem("Clean")) {
-          auto p_stus = (std::vector<Student> *)std::get<void *>(state["stus"]);
-          if (p_stus != nullptr) {
-            delete p_stus;
-            p_stus = nullptr;
-            state["stus"] = p_stus;
+
+    if (main_win_open) {
+      ImGui::Begin("Main Window", &main_win_open, window_flags);
+      ImGuiIO &io = ImGui::GetIO();
+      if (ImGui::BeginMenuBar()) {
+        if (ImGui::BeginMenu("Options")) {
+          if (ImGui::MenuItem("Load")) {
+            select_win_open = true;
           }
-        }
-
-        if (ImGui::MenuItem("Close")) {
-          *p_open = false;
-        }
-
-        ImGui::EndMenu();
-      }
-      if (ImGui::BeginMenu("Theme")) {
-        if (ImGui::MenuItem("Dark")) {
-          ImGui::StyleColorsDark();
-        }
-        if (ImGui::MenuItem("Light")) {
-          ImGui::StyleColorsLight();
-        }
-        if (ImGui::MenuItem("Classic")) {
-          ImGui::StyleColorsClassic();
-        }
-        ImGui::EndMenu();
-      }
-      ImGui::EndMenuBar();
-    }
-
-    if (select_win_open) {
-      ImGui::Begin("Select File Path", &select_win_open);
-
-      static char buffer[1024] = "build/output_preprocessed.csv";
-
-      ImGui::InputText("##Enter file path", buffer, sizeof(buffer));
-
-      ImGui::SameLine();
-
-      if (ImGui::Button("Submit")) {
-        if (std::filesystem::exists(buffer)) {
-          auto p_stus = (std::vector<Student> *)std::get<void *>(state["stus"]);
-
-          if (p_stus != nullptr) {
-            delete p_stus;
-            p_stus = nullptr;
-            state["stus"] = p_stus;
+          if (ImGui::MenuItem("Clean")) {
+            auto p_stus =
+                (std::vector<Student> *)std::get<void *>(state["stus"]);
+            if (p_stus != nullptr) {
+              delete p_stus;
+              p_stus = nullptr;
+              state["stus"] = p_stus;
+            }
           }
 
-          p_stus = new std::vector(::load_data_from_csv(buffer));
-          state["stus"] = p_stus;
-          select_win_open = false;
+          if (ImGui::MenuItem("Close")) {
+            main_win_open = false;
+            g_should_close_program = true;
+          }
 
-          Logger::info("Selected file: %s", buffer);
-        } else {
-          Logger::info("The file is not exists.");
-          ::memset(buffer, 0, sizeof(buffer));
+          ImGui::EndMenu();
         }
+        if (ImGui::BeginMenu("Theme")) {
+          if (ImGui::MenuItem("Dark")) {
+            ImGui::StyleColorsDark();
+          }
+          if (ImGui::MenuItem("Light")) {
+            ImGui::StyleColorsLight();
+          }
+          if (ImGui::MenuItem("Classic")) {
+            ImGui::StyleColorsClassic();
+          }
+          ImGui::EndMenu();
+        }
+        ImGui::EndMenuBar();
       }
+
+      if (select_win_open) {
+        ImGui::Begin("Select File Path", &select_win_open);
+
+        static char buffer[1024] = "build/output_preprocessed.csv";
+
+        ImGui::InputText("##Enter file path", buffer, sizeof(buffer));
+
+        ImGui::SameLine();
+
+        if (ImGui::Button("Submit")) {
+          if (std::filesystem::exists(buffer)) {
+            auto p_stus =
+                (std::vector<Student> *)std::get<void *>(state["stus"]);
+
+            if (p_stus != nullptr) {
+              delete p_stus;
+              p_stus = nullptr;
+              state["stus"] = p_stus;
+            }
+
+            p_stus = new std::vector(::load_data_from_csv(buffer));
+            state["stus"] = p_stus;
+            select_win_open = false;
+
+            Logger::info("Selected file: %s", buffer);
+          } else {
+            Logger::info("The file is not exists.");
+            ::memset(buffer, 0, sizeof(buffer));
+          }
+        }
+        ImGui::End();
+      }
+
+      render_logger();
+
+      render_table();
+
       ImGui::End();
     }
-
-    render_logger();
-
-    render_table();
-
-    ImGui::End();
   }
 
   static void render_logger() {

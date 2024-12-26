@@ -6,6 +6,7 @@
 #include <imgui/backends/imgui_impl_opengl2.h>
 #include <imgui/imgui.h>
 
+bool g_should_close_program = false;
 GLFWwindow *window = nullptr;
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
@@ -61,7 +62,7 @@ static void ui_render() {
 }
 
 int ui_loop() {
-  while (!::glfwWindowShouldClose(window)) {
+  while (!::glfwWindowShouldClose(window) && !g_should_close_program) {
     ::glfwPollEvents();
     if (::glfwGetWindowAttrib(window, GLFW_ICONIFIED) != 0) {
       ::ImGui_ImplGlfw_Sleep(10);
