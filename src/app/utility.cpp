@@ -148,13 +148,13 @@ void impute_missing_values(std::vector<Student> &stus) {
   Logger::info("trees_all is training...");
 
   for (auto i = 0; i < n_feat; i++) {
-    auto X = X_all;
+    auto X = X_all_meaned;
     std::vector<float> y;
     for (auto &x : X) {
       y.push_back(x[i]);
       x.erase(x.begin() + i);
     }
-    auto tree = RegressionTree(4, 3);
+    auto tree = RegressionTree(5, 3);
     tree.train(X, y);
     trees_all.push_back(tree);
     Logger::info("trees_all[%d] has trained.", i);
@@ -169,7 +169,6 @@ void impute_missing_values(std::vector<Student> &stus) {
     std::vector<size_t> missing_sample_idxs = ::gen_missing_sample_idxs(X);
     std::vector<size_t> missing_feat_idxs = ::gen_missing_feat_idxs(X);
     size_t n_sample = X.size();
-    auto tree = RegressionTree(2, 2);
 
     Logger::debug("stu.name = %s", stu.m_name.c_str());
     Logger::debug("missing_feat_idxs.size = %lld",
@@ -181,7 +180,7 @@ void impute_missing_values(std::vector<Student> &stus) {
       auto X_erased = X_meaned;
       auto y = std::vector<float>();
       auto p = std::vector<float>();
-      auto tree = RegressionTree(2, 2);
+      auto tree = RegressionTree(3, 1);
 
       for (auto &x : X_erased) {
         y.push_back(x[i]);
@@ -192,8 +191,8 @@ void impute_missing_values(std::vector<Student> &stus) {
 
       for (auto j = 0; j < n_sample; j++) {
         if (std::abs(X_output[j][i] - (-1.0)) < 0.00001) {
-          X_output[j][i] = 0.8 * tree.predict(X_erased[j]) +
-                           0.2 * trees_all[i].predict(X_erased[j]);
+          X_output[j][i] = 0.9 * tree.predict(X_erased[j]) +
+                           0.1 * trees_all[i].predict(X_erased[j]);
         }
       }
 

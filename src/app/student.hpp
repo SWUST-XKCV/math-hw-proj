@@ -29,7 +29,7 @@ struct Student {
       for (int j = 0; j < 9; j++) {
         sum += w_subject[j] * mat[i][j];
       }
-      ans = w_tm[i] * sum;
+      ans += w_tm[i] * sum;
     }
 
     return ans;
