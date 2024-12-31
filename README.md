@@ -4,6 +4,8 @@
     </h1>
 </div>
 
+![](./docs/algorithm_design.drawio.svg)
+
 # Requirements
 
 - Python 3.9+
